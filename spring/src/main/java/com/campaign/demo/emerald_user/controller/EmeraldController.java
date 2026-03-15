@@ -21,7 +21,7 @@ public class EmeraldController {
         this.emeraldService = emeraldService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<AccountResponse> getAccount() {
         return ResponseEntity.ok(emeraldService.getAccount());
     }
