@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Entity
@@ -18,9 +20,9 @@ import lombok.Setter;
 public class Town {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Setter(AccessLevel.NONE)
-    private Long id;
+    private UUID id;
 
     @NotBlank
     @Column(name = "name", nullable = false, unique = true, length = 120)

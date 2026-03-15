@@ -20,7 +20,7 @@ Globalne konto demo (jeden rekord).
 
 | Kolumna | Typ | Ograniczenia | Opis |
 |---|---|---|---|
-| id | BIGINT | PK | Id konta |
+| id | UUID | PK | UUID konta |
 | balance | DECIMAL(19,2) | NOT NULL, CHECK (balance >= 0) | Aktualne saldo |
 | currency | VARCHAR(20) | NOT NULL | Np. `USD` |
 
@@ -29,11 +29,11 @@ Produkty, dla których można tworzyć kampanie.
 
 | Kolumna | Typ | Ograniczenia | Opis |
 |---|---|---|---|
-| id | BIGINT | PK | Id produktu |
+| id | UUID | PK | UUID produktu |
 | name | VARCHAR(100) | NOT NULL | Nazwa produktu |
 | created_at | TIMESTAMP | NOT NULL | Data utworzenia |
 | updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
-| emerald_account_id | BIGINT | NOT NULL, FK -> emerald_account(id) | ID wlasciciela produktu |
+| emerald_account_id | UUID | NOT NULL, FK -> emerald_account(id) | UUID wlasciciela produktu |
 
 
 
@@ -42,7 +42,7 @@ Słownik miast do dropdown.
 
 | Kolumna | Typ | Ograniczenia | Opis |
 |---|---|---|---|
-| id | BIGINT | PK | Id miasta |
+| id | UUID | PK | UUID miasta |
 | name | VARCHAR(120) | NOT NULL, UNIQUE | Nazwa miasta |
 
 ## 4) keyword
@@ -50,21 +50,21 @@ Słownik słów kluczowych do typeahead.
 
 | Kolumna | Typ | Ograniczenia | Opis |
 |---|---|---|---|
-| id | BIGINT | PK | Id słowa kluczowego |
-| value | VARCHAR(120) | NOT NULL, UNIQUE | Treść słowa kluczowego |
+| id | UUID | PK | UUID słowa kluczowego |
+| keyword_value | VARCHAR(120) | NOT NULL, UNIQUE | Treść słowa kluczowego |
 
 ## 5) campaign
 Kampania reklamowa przypisana do produktu.
 
 | Kolumna | Typ | Ograniczenia | Opis |
 |---|---|---|---|
-| id | BIGINT | PK | Id kampanii |
-| product_id | BIGINT | NOT NULL, FK -> product(id) | Produkt kampanii |
+| id | UUID | PK | UUID kampanii |
+| product_id | UUID | NOT NULL, FK -> product(id) | Produkt kampanii |
 | name | VARCHAR(120) | NOT NULL | Nazwa kampanii |
 | bid_amount | DECIMAL(19,2) | NOT NULL, CHECK (bid_amount >= 0.01) | Stawka bid |
 | campaign_fund | DECIMAL(19,2) | NOT NULL, CHECK (campaign_fund > 0) | Budżet kampanii |
 | status | VARCHAR(10) | NOT NULL, CHECK (status IN ('ON','OFF')) | Status kampanii |
-| town_id | BIGINT | NOT NULL, FK -> town(id) | Miasto |
+| town_id | UUID | NOT NULL, FK -> town(id) | Miasto |
 | radius_km | INT | NOT NULL, CHECK (radius_km > 0) | Promień w km |
 | created_at | TIMESTAMP | NOT NULL | Data utworzenia |
 | updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
@@ -74,8 +74,8 @@ Tabela łącząca kampanie i słowa kluczowe (M:N).
 
 | Kolumna | Typ | Ograniczenia | Opis |
 |---|---|---|---|
-| campaign_id | BIGINT | PK, FK -> campaign(id) | Kampania |
-| keyword_id | BIGINT | PK, FK -> keyword(id) | Słowo kluczowe |
+| campaign_id | UUID | PK, FK -> campaign(id) | Kampania |
+| keyword_id | UUID | PK, FK -> keyword(id) | Słowo kluczowe |
 
 ## Relacje
 
