@@ -1,0 +1,26 @@
+services:
+  spring:
+    build:
+      context: ./spring
+      dockerfile: Dockerfile
+    container_name: spring
+    restart: on-failure
+    environment:
+      - TZ=Europe/Warsaw
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+
+networks:
+  app-network:
+    driver: bridge
+
+  

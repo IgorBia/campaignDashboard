@@ -22,7 +22,7 @@ Globalne konto demo (jeden rekord).
 |---|---|---|---|
 | id | BIGINT | PK | Id konta |
 | balance | DECIMAL(19,2) | NOT NULL, CHECK (balance >= 0) | Aktualne saldo |
-| currency | VARCHAR(20) | NOT NULL | Np. `EMERALD` |
+| currency | VARCHAR(20) | NOT NULL | Np. `USD` |
 
 ## 2) product
 Produkty, dla których można tworzyć kampanie.
