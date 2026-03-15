@@ -1,0 +1,535 @@
+openapi: 3.0.3
+info:
+  title: Campaign Dashboard API
+  version: 1.0.0
+  description: |
+    API do zarządzania produktami i kampaniami reklamowymi dla globalnego konta demo.
+servers:
+  - url: http://localhost:8080
+    description: Local
+
+tags:
+  - name: Products
+  - name: Campaigns
+  - name: Dictionaries
+  - name: Account
+
+paths:
+  /api/products:
+    get:
+      tags: [Products]
+      summary: Lista produktów
+      operationId: listProducts
+      responses:
+        '200':
+          description: Lista produktów
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+    post:
+      tags: [Products]
+      summary: Dodaj produkt
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+      responses:
+        '201':
+          description: Utworzony produkt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/products/{id}:
+    put:
+      tags: [Products]
+      summary: Edytuj produkt
+      operationId: updateProduct
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: Zaktualizowany produkt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Products]
+      summary: Usuń produkt
+      operationId: deleteProduct
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: Produkt usunięty
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/campaigns:
+    get:
+      tags: [Campaigns]
+      summary: Lista kampanii
+      operationId: listCampaigns
+      parameters:
+        - name: productId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/CampaignStatus'
+        - name: townId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista kampanii
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CampaignResponse'
+    post:
+      tags: [Campaigns]
+      summary: Dodaj kampanię
+      operationId: createCampaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignCreateRequest'
+      responses:
+        '201':
+          description: Utworzona kampania i nowe saldo konta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignMutationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/BusinessConflict'
+
+  /api/campaigns/{id}:
+    get:
+      tags: [Campaigns]
+      summary: Pobierz kampanię
+      operationId: getCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Szczegóły kampanii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Campaigns]
+      summary: Edytuj kampanię
+      operationId: updateCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignUpdateRequest'
+      responses:
+        '200':
+          description: Zaktualizowana kampania i nowe saldo konta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignMutationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/BusinessConflict'
+    delete:
+      tags: [Campaigns]
+      summary: Usuń kampanię
+      description: Usuń kampanię i zwróć jej fund do salda konta demo.
+      operationId: deleteCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Kampania usunięta i zaktualizowane saldo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteCampaignResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/dictionaries/keywords:
+    get:
+      tags: [Dictionaries]
+      summary: Typeahead słów kluczowych
+      operationId: searchKeywords
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: Lista dopasowań
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KeywordResponse'
+
+  /api/dictionaries/towns:
+    get:
+      tags: [Dictionaries]
+      summary: Lista miast do dropdown
+      operationId: listTowns
+      responses:
+        '200':
+          description: Lista miast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TownResponse'
+
+  /api/account:
+    get:
+      tags: [Account]
+      summary: Saldo konta Emerald (globalne demo)
+      operationId: getAccount
+      responses:
+        '200':
+          description: Dane konta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+
+  /api/account/seed:
+    post:
+      tags: [Account]
+      summary: Reset salda konta demo (endpoint techniczny)
+      operationId: seedAccount
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountSeedRequest'
+      responses:
+        '200':
+          description: Zresetowane konto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+
+components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    CampaignId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    BadRequest:
+      description: Błąd walidacji danych
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Zasób nie istnieje
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BusinessConflict:
+      description: Błąd reguły biznesowej (np. niewystarczające środki)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    CampaignStatus:
+      type: string
+      enum: [ON, OFF]
+
+    ProductCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    ProductUpdateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    ProductResponse:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CampaignCreateRequest:
+      type: object
+      required:
+        [productId, name, keywordIds, bidAmount, campaignFund, status, townId, radiusKm]
+      properties:
+        productId:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        keywordIds:
+          type: array
+          minItems: 1
+          items:
+            type: integer
+            format: int64
+        bidAmount:
+          type: number
+          format: double
+          minimum: 0.01
+        campaignFund:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        townId:
+          type: integer
+          format: int64
+        radiusKm:
+          type: integer
+          minimum: 1
+
+    CampaignUpdateRequest:
+      type: object
+      required:
+        [productId, name, keywordIds, bidAmount, campaignFund, status, townId, radiusKm]
+      properties:
+        productId:
+          type: integer
+          format: int64
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        keywordIds:
+          type: array
+          minItems: 1
+          items:
+            type: integer
+            format: int64
+        bidAmount:
+          type: number
+          format: double
+          minimum: 0.01
+        campaignFund:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        townId:
+          type: integer
+          format: int64
+        radiusKm:
+          type: integer
+          minimum: 1
+
+    CampaignResponse:
+      type: object
+      required:
+        [id, productId, name, keywords, bidAmount, campaignFund, status, town, radiusKm]
+      properties:
+        id:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        name:
+          type: string
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeywordResponse'
+        bidAmount:
+          type: number
+          format: double
+        campaignFund:
+          type: number
+          format: double
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        town:
+          $ref: '#/components/schemas/TownResponse'
+        radiusKm:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CampaignMutationResponse:
+      type: object
+      required: [campaign, accountBalance]
+      properties:
+        campaign:
+          $ref: '#/components/schemas/CampaignResponse'
+        accountBalance:
+          type: number
+          format: double
+
+    DeleteCampaignResponse:
+      type: object
+      required: [deletedCampaignId, accountBalance]
+      properties:
+        deletedCampaignId:
+          type: integer
+          format: int64
+        accountBalance:
+          type: number
+          format: double
+
+    KeywordResponse:
+      type: object
+      required: [id, value]
+      properties:
+        id:
+          type: integer
+          format: int64
+        value:
+          type: string
+
+    TownResponse:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+
+    AccountResponse:
+      type: object
+      required: [id, balance, currency]
+      properties:
+        id:
+          type: integer
+          format: int64
+        balance:
+          type: number
+          format: double
+        currency:
+          type: string
+          example: EMERALD
+
+    AccountSeedRequest:
+      type: object
+      required: [balance]
+      properties:
+        balance:
+          type: number
+          format: double
+          minimum: 0
+
+    ErrorResponse:
+      type: object
+      required: [code, message, timestamp]
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: campaignFund must be greater than zero
+        details:
+          type: array
+          items:
+            type: string
+        timestamp:
+          type: string
+          format: date-time
