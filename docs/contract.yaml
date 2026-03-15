@@ -88,26 +88,8 @@ paths:
   /api/campaigns:
     get:
       tags: [Campaigns]
-      summary: Lista kampanii
+      summary: Lista kampanii globalnego użytkownika demo
       operationId: listCampaigns
-      parameters:
-        - name: productId
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-        - name: status
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/CampaignStatus'
-        - name: townId
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: Lista kampanii
