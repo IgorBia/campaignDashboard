@@ -1,37 +1,26 @@
 package com.campaign.demo.utility.controller;
 
 import com.campaign.demo.utility.dto.KeywordResponse;
-import com.campaign.demo.utility.repository.KeywordRepository;
+import com.campaign.demo.utility.service.KeywordService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/keywords")
 public class KeywordController {
 
-    private final KeywordRepository keywordRepository;
+    private final KeywordService keywordService;
 
-    public KeywordController(KeywordRepository keywordRepository) {
-        this.keywordRepository = keywordRepository;
+    public KeywordController(KeywordService keywordService) {
+        this.keywordService = keywordService;
     }
 
     @GetMapping
     public List<KeywordResponse> getAllKeywords(@RequestParam(required = false, defaultValue = "") String query) {
-        String normalizedQuery = query.trim();
-
-        if (normalizedQuery.isEmpty()) {
-            return keywordRepository.findAllByOrderByValueAsc().stream()
-                .map(keyword -> new KeywordResponse(keyword.getId(), keyword.getValue()))
-                .toList();
-        }
-
-        return keywordRepository
-            .findByValueStartingWithIgnoreCaseOrderByValueAsc(normalizedQuery)
-            .stream()
-            .map(keyword -> new KeywordResponse(keyword.getId(), keyword.getValue()))
-            .toList();
+        return keywordService.getAllKeywords(query);
     }
 }

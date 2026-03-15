@@ -1,9 +1,13 @@
 package com.campaign.demo.campaign.controller;
 
 import com.campaign.demo.campaign.dto.CampaignCreateRequest;
+import com.campaign.demo.campaign.dto.CampaignDeleteResponse;
+import com.campaign.demo.campaign.dto.CampaignMutationResponse;
 import com.campaign.demo.campaign.dto.CampaignResponse;
 import com.campaign.demo.campaign.dto.CampaignUpdateRequest;
 import com.campaign.demo.campaign.service.CampaignService; 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -32,8 +36,8 @@ public class CampaignController {
     }
 
     @PostMapping
-    public ResponseEntity<CampaignResponse> createCampaign(@Valid @RequestBody CampaignCreateRequest request) {
-        return ResponseEntity.ok(campaignService.createCampaign(request));
+    public ResponseEntity<CampaignMutationResponse> createCampaign(@Valid @RequestBody CampaignCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(campaignService.createCampaign(request));
     }
 
     @GetMapping("/{id}")
@@ -42,13 +46,13 @@ public class CampaignController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CampaignResponse> updateCampaign(@PathVariable UUID id, @Valid @RequestBody CampaignUpdateRequest request) {
+    public ResponseEntity<CampaignMutationResponse> updateCampaign(@PathVariable UUID id,
+                                                                   @Valid @RequestBody CampaignUpdateRequest request) {
         return ResponseEntity.ok(campaignService.updateCampaign(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCampaign(@PathVariable UUID id) {
-        campaignService.deleteCampaign(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CampaignDeleteResponse> deleteCampaign(@PathVariable UUID id) {
+        return ResponseEntity.ok(campaignService.deleteCampaign(id));
     }
 }
