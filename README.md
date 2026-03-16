@@ -1,6 +1,6 @@
 # Campaign Dashboard
 
-Minimalna aplikacja webowa do zarządzania produktami i kampaniami reklamowymi z budżetem opartym na saldzie konta demo.
+Aplikacja webowa do zarządzania produktami i kampaniami reklamowymi z budżetem opartym na saldzie konta demo.
 
 ## Dokumentacja
 
