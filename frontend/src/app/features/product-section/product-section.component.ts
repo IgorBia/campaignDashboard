@@ -1,7 +1,8 @@
 import { NgFor, NgIf } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { catchError, of } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { ProductResponse, ProductUpsertRequest } from '../../core/models/api.models';
 import { ProductsApiService } from '../../core/services/products-api.service';
 
@@ -16,6 +17,7 @@ export class ProductSectionComponent implements OnInit {
   private readonly productsApi = inject(ProductsApiService);
 
   isFormOpen = false;
+  editingProductId: string | null = null;
   formModel: ProductUpsertRequest = { name: '' };
   products: ProductResponse[] = [];
   isSubmitting = false;
@@ -28,12 +30,21 @@ export class ProductSectionComponent implements OnInit {
 
   openCreateForm(): void {
     this.isFormOpen = true;
+    this.editingProductId = null;
     this.formModel = { name: '' };
+    this.submitError = null;
+  }
+
+  openEditForm(product: ProductResponse): void {
+    this.isFormOpen = true;
+    this.editingProductId = product.id;
+    this.formModel = { name: product.name };
     this.submitError = null;
   }
 
   closeForm(): void {
     this.isFormOpen = false;
+    this.editingProductId = null;
     this.submitError = null;
   }
 
@@ -48,27 +59,61 @@ export class ProductSectionComponent implements OnInit {
     };
 
     this.isSubmitting = true;
-    this.productsApi.create(request).pipe(
+    const request$ = this.editingProductId
+      ? this.productsApi.update(this.editingProductId, request)
+      : this.productsApi.create(request);
+
+    request$.pipe(
       catchError(() => {
-        this.submitError = 'Nie udało się zapisać produktu';
+        this.submitError = 'Failed to save product';
         this.isSubmitting = false;
         return of(null);
       })
-    ).subscribe((createdProduct) => {
-      if (!createdProduct) {
+    ).subscribe((savedProduct) => {
+      if (!savedProduct) {
         return;
       }
 
-      this.products = [createdProduct, ...this.products];
+      if (this.editingProductId) {
+        this.products = this.products.map((product) =>
+          product.id === savedProduct.id ? savedProduct : product
+        );
+      } else {
+        this.products = [savedProduct, ...this.products];
+      }
+
       this.isSubmitting = false;
       this.closeForm();
+    });
+  }
+
+  deleteProduct(productId: string): void {
+    this.submitError = null;
+
+    this.productsApi.delete(productId).pipe(
+      map(() => true),
+      catchError((error: HttpErrorResponse) => {
+        this.submitError = error.status === 409
+          ? 'Cannot delete product because it is assigned to campaigns.'
+          : 'Failed to delete product';
+        return of(false);
+      })
+    ).subscribe((deleted) => {
+      if (!deleted) {
+        return;
+      }
+
+      this.products = this.products.filter((product) => product.id !== productId);
+      if (this.editingProductId === productId) {
+        this.closeForm();
+      }
     });
   }
 
   private loadProducts(): void {
     this.productsApi.getAll().pipe(
       catchError(() => {
-        this.loadError = 'Nie udało się pobrać produktów';
+        this.loadError = 'Failed to load products';
         return of([] as ProductResponse[]);
       })
     ).subscribe((products) => {

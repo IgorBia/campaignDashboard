@@ -1,4 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { catchError, of } from 'rxjs';
@@ -39,6 +40,7 @@ export class CampaignSectionComponent implements OnInit {
   @Output() accountBalanceChanged = new EventEmitter<number>();
 
   isFormOpen = false;
+  editingCampaignId: string | null = null;
   formModel: CampaignFormModel = this.getEmptyFormModel();
   campaigns: CampaignResponse[] = [];
   products: ProductResponse[] = [];
@@ -56,6 +58,7 @@ export class CampaignSectionComponent implements OnInit {
 
   openCreateForm(): void {
     this.isFormOpen = true;
+    this.editingCampaignId = null;
     this.formModel = this.getEmptyFormModel();
     this.selectedKeywords = [];
     this.keywordSuggestions = [];
@@ -65,8 +68,29 @@ export class CampaignSectionComponent implements OnInit {
     this.loadTowns();
   }
 
+  openEditForm(campaign: CampaignResponse): void {
+    this.isFormOpen = true;
+    this.editingCampaignId = campaign.id;
+    this.formModel = {
+      productId: campaign.productId,
+      name: campaign.name,
+      bidAmount: campaign.bidAmount,
+      campaignFund: campaign.campaignFund,
+      status: campaign.status,
+      townId: campaign.town.id,
+      radiusKm: campaign.radiusKm
+    };
+    this.selectedKeywords = [...campaign.keywords];
+    this.keywordSuggestions = [];
+    this.keywordQuery = '';
+    this.submitError = null;
+    this.loadProducts();
+    this.loadTowns();
+  }
+
   closeForm(): void {
     this.isFormOpen = false;
+    this.editingCampaignId = null;
     this.submitError = null;
   }
 
@@ -87,9 +111,13 @@ export class CampaignSectionComponent implements OnInit {
     };
 
     this.isSubmitting = true;
-    this.campaignsApi.create(request).pipe(
+    const request$ = this.editingCampaignId
+      ? this.campaignsApi.update(this.editingCampaignId, request)
+      : this.campaignsApi.create(request);
+
+    request$.pipe(
       catchError(() => {
-        this.submitError = 'Nie udało się zapisać kampanii';
+        this.submitError = 'Failed to save campaign';
         this.isSubmitting = false;
         return of(null);
       })
@@ -98,7 +126,14 @@ export class CampaignSectionComponent implements OnInit {
         return;
       }
 
-      this.campaigns = [mutationResponse.campaign, ...this.campaigns];
+      if (this.editingCampaignId) {
+        this.campaigns = this.campaigns.map((campaign) =>
+          campaign.id === mutationResponse.campaign.id ? mutationResponse.campaign : campaign
+        );
+      } else {
+        this.campaigns = [mutationResponse.campaign, ...this.campaigns];
+      }
+
       this.accountBalanceChanged.emit(mutationResponse.accountBalance);
       this.isSubmitting = false;
       this.closeForm();
@@ -134,6 +169,30 @@ export class CampaignSectionComponent implements OnInit {
     this.selectedKeywords = this.selectedKeywords.filter((keyword) => keyword.id !== keywordId);
   }
 
+  deleteCampaign(campaignId: string): void {
+    this.submitError = null;
+
+    this.campaignsApi.delete(campaignId).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.submitError = error.status === 409
+          ? 'Cannot delete campaign (business conflict).'
+          : 'Failed to delete campaign';
+
+        return of(null);
+      })
+    ).subscribe((deleteResponse) => {
+      if (!deleteResponse) {
+        return;
+      }
+
+      this.campaigns = this.campaigns.filter((campaign) => campaign.id !== campaignId);
+      this.accountBalanceChanged.emit(deleteResponse.accountBalance);
+      if (this.editingCampaignId === campaignId) {
+        this.closeForm();
+      }
+    });
+  }
+
   private getEmptyFormModel(): CampaignFormModel {
     return {
       productId: '',
@@ -149,7 +208,7 @@ export class CampaignSectionComponent implements OnInit {
   private loadCampaigns(): void {
     this.campaignsApi.getAll().pipe(
       catchError(() => {
-        this.loadError = 'Nie udało się pobrać kampanii';
+        this.loadError = 'Failed to load campaigns';
         return of([] as CampaignResponse[]);
       })
     ).subscribe((campaigns) => {

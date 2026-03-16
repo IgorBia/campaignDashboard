@@ -37,7 +37,7 @@ export class MainComponent implements OnInit {
   private loadAccount(): void {
     this.accountApi.getAccount().pipe(
       catchError(() => {
-        this.accountError = 'Nie udało się pobrać salda konta';
+        this.accountError = 'Failed to load account balance';
         return of(null);
       })
     ).subscribe((account) => {

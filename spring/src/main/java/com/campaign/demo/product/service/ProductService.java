@@ -5,10 +5,12 @@ import com.campaign.demo.product.dto.ProductCreateRequest;
 import com.campaign.demo.product.dto.ProductResponse;
 import com.campaign.demo.product.dto.ProductUpdateRequest;
 import com.campaign.demo.product.mapper.ProductMapper;
+import com.campaign.demo.campaign.repository.CampaignRepository;
 import com.campaign.demo.product.model.Product;
 import com.campaign.demo.product.repository.ProductRepository;
 import com.campaign.demo.utility.exception.NotFoundException;
 import jakarta.transaction.Transactional;
+import com.campaign.demo.utility.exception.BusinessConflictException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +22,14 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final EmeraldService emeraldService;
+    private final CampaignRepository campaignRepository;
 
     public ProductService(ProductRepository productRepository, ProductMapper productMapper,
-                          EmeraldService emeraldService) {
+                          EmeraldService emeraldService, CampaignRepository campaignRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
         this.emeraldService = emeraldService;
+        this.campaignRepository = campaignRepository;
     }
 
     public List<ProductResponse> getAllProducts() {
@@ -53,6 +57,13 @@ public class ProductService {
     public void deleteProduct(UUID id) {
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Product not found"));
+        if(isProductInActiveCampaign(product)) {
+            throw new BusinessConflictException("Cannot delete product that is part of an active campaign");
+        }
         productRepository.delete(product);
+    }
+
+    private boolean isProductInActiveCampaign(Product product) {
+        return campaignRepository.existsByProductId(product.getId());
     }
 }

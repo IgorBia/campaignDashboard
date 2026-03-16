@@ -47,8 +47,15 @@ export type CampaignCreateRequest = {
   radiusKm: number;
 };
 
+export type CampaignUpsertRequest = CampaignCreateRequest;
+
 export type CampaignMutationResponse = {
   campaign: CampaignResponse;
+  accountBalance: number;
+};
+
+export type CampaignDeleteResponse = {
+  deletedCampaignId: string;
   accountBalance: number;
 };
 
