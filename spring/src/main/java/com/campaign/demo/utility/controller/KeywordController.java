@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/keywords")
+@RequestMapping("/dictionaries/keywords")
 public class KeywordController {
 
     private final KeywordService keywordService;

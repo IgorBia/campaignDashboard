@@ -1,0 +1,17 @@
+<main class="page">
+  <h1>Campaign Dashboard</h1>
+  <p class="muted">Frontend MVPx</p>
+
+  <section class="card" *ngIf="account as acc; else errorTpl">
+    <h2>Konto globalne</h2>
+    <p><strong>ID:</strong> {{ acc.id }}</p>
+    <p><strong>Saldo:</strong> {{ acc.balance }} {{ acc.currency }}</p>
+  </section>
+
+  <ng-template #errorTpl>
+    <section class="card error">
+      <h2>API niedostępne</h2>
+      <p>{{ error || 'Sprawdź czy backend działa pod /api' }}</p>
+    </section>
+  </ng-template>
+</main>

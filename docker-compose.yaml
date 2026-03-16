@@ -19,6 +19,20 @@ services:
       timeout: 2s
       retries: 10
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: on-failure
+    ports:
+      - "80:80"
+    depends_on:
+      spring:
+        condition: service_healthy
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

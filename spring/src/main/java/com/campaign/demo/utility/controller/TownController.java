@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/towns")
+@RequestMapping("/dictionaries/towns")
 public class TownController {
     private final TownService townService;
 
