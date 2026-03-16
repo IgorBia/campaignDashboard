@@ -1,0 +1,106 @@
+<section class="card">
+  <div class="section-header">
+    <h2>Kampanie</h2>
+    <button type="button" (click)="openCreateForm()">Dodaj kampanię</button>
+  </div>
+
+  <ul class="list">
+    <li>
+      <span>Przykładowa kampania</span>
+      <div class="actions">
+        <button type="button" (click)="openEditForm()">Edytuj</button>
+        <button type="button" (click)="deleteCampaign()">Usuń</button>
+      </div>
+    </li>
+  </ul>
+
+  <form *ngIf="isFormOpen" class="inline-form" #campaignForm="ngForm" (ngSubmit)="submitForm()">
+    <h3>{{ isEditMode ? 'Edytuj kampanię' : 'Dodaj kampanię' }}</h3>
+    <label>
+      Product ID
+      <input
+        type="text"
+        name="productId"
+        [(ngModel)]="formModel.productId"
+        required
+        placeholder="uuid"
+      />
+    </label>
+    <label>
+      Nazwa kampanii
+      <input
+        type="text"
+        name="name"
+        [(ngModel)]="formModel.name"
+        required
+        minlength="1"
+        maxlength="120"
+        placeholder="np. Summer Promo"
+      />
+    </label>
+    <label>
+      Keyword IDs (uuid, oddzielone przecinkami)
+      <input
+        type="text"
+        name="keywordIdsRaw"
+        [(ngModel)]="formModel.keywordIdsRaw"
+        required
+        placeholder="uuid1,uuid2"
+      />
+    </label>
+    <label>
+      Bid amount
+      <input
+        type="number"
+        name="bidAmount"
+        [(ngModel)]="formModel.bidAmount"
+        required
+        min="0.01"
+        step="0.01"
+      />
+    </label>
+    <label>
+      Campaign fund
+      <input
+        type="number"
+        name="campaignFund"
+        [(ngModel)]="formModel.campaignFund"
+        required
+        min="0.01"
+        step="0.01"
+      />
+    </label>
+    <label>
+      Status
+      <select name="status" [(ngModel)]="formModel.status" required>
+        <option value="ON">ON</option>
+        <option value="OFF">OFF</option>
+      </select>
+    </label>
+    <label>
+      Town ID
+      <input
+        type="text"
+        name="townId"
+        [(ngModel)]="formModel.townId"
+        required
+        placeholder="uuid"
+      />
+    </label>
+    <label>
+      Radius (km)
+      <input
+        type="number"
+        name="radiusKm"
+        [(ngModel)]="formModel.radiusKm"
+        required
+        min="1"
+        step="1"
+      />
+    </label>
+    <div class="actions">
+      <button type="submit" [disabled]="campaignForm.invalid">Zapisz</button>
+      <button type="button" (click)="closeForm()">Anuluj</button>
+    </div>
+  </form>
+</section>
