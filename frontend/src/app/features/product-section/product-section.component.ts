@@ -1,38 +1,40 @@
-import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-type ProductUpsertRequest = {
-  name: string;
-};
+import { catchError, of } from 'rxjs';
+import { ProductResponse, ProductUpsertRequest } from '../../core/models/api.models';
+import { ProductsApiService } from '../../core/services/products-api.service';
 
 @Component({
   selector: 'app-product-section',
   standalone: true,
-  imports: [NgIf, FormsModule],
+  imports: [NgIf, NgFor, FormsModule],
   templateUrl: './product-section.component.html',
   styleUrl: './product-section.component.css'
 })
-export class ProductSectionComponent {
+export class ProductSectionComponent implements OnInit {
+  private readonly productsApi = inject(ProductsApiService);
+
   isFormOpen = false;
-  isEditMode = false;
   formModel: ProductUpsertRequest = { name: '' };
-  submittedProductRequest: ProductUpsertRequest | null = null;
+  products: ProductResponse[] = [];
+  isSubmitting = false;
+  loadError: string | null = null;
+  submitError: string | null = null;
+
+  ngOnInit(): void {
+    this.loadProducts();
+  }
 
   openCreateForm(): void {
     this.isFormOpen = true;
-    this.isEditMode = false;
     this.formModel = { name: '' };
-  }
-
-  openEditForm(): void {
-    this.isFormOpen = true;
-    this.isEditMode = true;
-    this.formModel = { name: 'Przykładowy produkt' };
+    this.submitError = null;
   }
 
   closeForm(): void {
     this.isFormOpen = false;
+    this.submitError = null;
   }
 
   submitForm(): void {
@@ -41,13 +43,36 @@ export class ProductSectionComponent {
       return;
     }
 
-    this.submittedProductRequest = {
+    const request: ProductUpsertRequest = {
       name: trimmedName
     };
 
-    this.closeForm();
+    this.isSubmitting = true;
+    this.productsApi.create(request).pipe(
+      catchError(() => {
+        this.submitError = 'Nie udało się zapisać produktu';
+        this.isSubmitting = false;
+        return of(null);
+      })
+    ).subscribe((createdProduct) => {
+      if (!createdProduct) {
+        return;
+      }
+
+      this.products = [createdProduct, ...this.products];
+      this.isSubmitting = false;
+      this.closeForm();
+    });
   }
 
-  deleteProduct(): void {
+  private loadProducts(): void {
+    this.productsApi.getAll().pipe(
+      catchError(() => {
+        this.loadError = 'Nie udało się pobrać produktów';
+        return of([] as ProductResponse[]);
+      })
+    ).subscribe((products) => {
+      this.products = products;
+    });
   }
 }

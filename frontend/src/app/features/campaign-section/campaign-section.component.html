@@ -4,27 +4,32 @@
     <button type="button" (click)="openCreateForm()">Dodaj kampanię</button>
   </div>
 
-  <ul class="list">
-    <li>
-      <span>Przykładowa kampania</span>
-      <div class="actions">
-        <button type="button" (click)="openEditForm()">Edytuj</button>
-        <button type="button" (click)="deleteCampaign()">Usuń</button>
+  <p class="error-text" *ngIf="loadError">{{ loadError }}</p>
+
+  <ul class="list" *ngIf="campaigns.length; else emptyState">
+    <li *ngFor="let campaign of campaigns">
+      <div class="campaign-item">
+        <strong>{{ campaign.name }}</strong>
+        <small>{{ campaign.productName }} · {{ campaign.town.name }} · {{ campaign.campaignFund }}</small>
       </div>
     </li>
   </ul>
 
+  <ng-template #emptyState>
+    <p class="muted">Brak kampanii</p>
+  </ng-template>
+
   <form *ngIf="isFormOpen" class="inline-form" #campaignForm="ngForm" (ngSubmit)="submitForm()">
-    <h3>{{ isEditMode ? 'Edytuj kampanię' : 'Dodaj kampanię' }}</h3>
+    <h3>Dodaj kampanię</h3>
     <label>
-      Product ID
-      <input
-        type="text"
+      Produkt
+      <select
         name="productId"
         [(ngModel)]="formModel.productId"
         required
-        placeholder="uuid"
-      />
+      >
+        <option *ngFor="let product of products" [ngValue]="product.id">{{ product.name }}</option>
+      </select>
     </label>
     <label>
       Nazwa kampanii
@@ -38,16 +43,31 @@
         placeholder="np. Summer Promo"
       />
     </label>
+
     <label>
-      Keyword IDs (uuid, oddzielone przecinkami)
+      Keywords (typeahead)
       <input
         type="text"
-        name="keywordIdsRaw"
-        [(ngModel)]="formModel.keywordIdsRaw"
-        required
-        placeholder="uuid1,uuid2"
+        name="keywordQuery"
+        [(ngModel)]="keywordQuery"
+        (ngModelChange)="onKeywordQueryChange()"
+        placeholder="Wpisz np. sport"
       />
     </label>
+
+    <ul class="typeahead-list" *ngIf="keywordSuggestions.length">
+      <li *ngFor="let keyword of keywordSuggestions">
+        <button type="button" (click)="addKeyword(keyword)">{{ keyword.value }}</button>
+      </li>
+    </ul>
+
+    <div class="chips" *ngIf="selectedKeywords.length">
+      <span class="chip" *ngFor="let keyword of selectedKeywords">
+        {{ keyword.value }}
+        <button type="button" (click)="removeKeyword(keyword.id)">×</button>
+      </span>
+    </div>
+
     <label>
       Bid amount
       <input
@@ -70,6 +90,7 @@
         step="0.01"
       />
     </label>
+
     <label>
       Status
       <select name="status" [(ngModel)]="formModel.status" required>
@@ -77,16 +98,18 @@
         <option value="OFF">OFF</option>
       </select>
     </label>
+
     <label>
-      Town ID
-      <input
-        type="text"
+      Town
+      <select
         name="townId"
         [(ngModel)]="formModel.townId"
         required
-        placeholder="uuid"
-      />
+      >
+        <option *ngFor="let town of towns" [ngValue]="town.id">{{ town.name }}</option>
+      </select>
     </label>
+
     <label>
       Radius (km)
       <input
@@ -98,8 +121,11 @@
         step="1"
       />
     </label>
+
+    <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
+
     <div class="actions">
-      <button type="submit" [disabled]="campaignForm.invalid">Zapisz</button>
+      <button type="submit" [disabled]="campaignForm.invalid || !selectedKeywords.length || isSubmitting">Zapisz</button>
       <button type="button" (click)="closeForm()">Anuluj</button>
     </div>
   </form>

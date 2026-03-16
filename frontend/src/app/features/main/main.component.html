@@ -4,6 +4,17 @@
     <p class="muted">Minimal frontend MVP</p>
   </header>
 
+  <section class="card" *ngIf="account as acc; else accountErrorTpl">
+    <h2>Konto demo</h2>
+    <p><strong>Saldo:</strong> {{ acc.balance }} {{ acc.currency }}</p>
+  </section>
+
+  <ng-template #accountErrorTpl>
+    <section class="card error" *ngIf="accountError">
+      <p>{{ accountError }}</p>
+    </section>
+  </ng-template>
+
   <app-product-section></app-product-section>
-  <app-campaign-section></app-campaign-section>
+  <app-campaign-section (accountBalanceChanged)="onAccountBalanceChanged($event)"></app-campaign-section>
 </main>

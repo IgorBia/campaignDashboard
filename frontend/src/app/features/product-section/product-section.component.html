@@ -4,18 +4,20 @@
     <button type="button" (click)="openCreateForm()">Dodaj produkt</button>
   </div>
 
-  <ul class="list">
-    <li>
-      <span>Przykładowy produkt</span>
-      <div class="actions">
-        <button type="button" (click)="openEditForm()">Edytuj</button>
-        <button type="button" (click)="deleteProduct()">Usuń</button>
-      </div>
+  <p class="error-text" *ngIf="loadError">{{ loadError }}</p>
+
+  <ul class="list" *ngIf="products.length; else emptyState">
+    <li *ngFor="let product of products">
+      <span>{{ product.name }}</span>
     </li>
   </ul>
 
+  <ng-template #emptyState>
+    <p class="muted">Brak produktów</p>
+  </ng-template>
+
   <form *ngIf="isFormOpen" class="inline-form" #productForm="ngForm" (ngSubmit)="submitForm()">
-    <h3>{{ isEditMode ? 'Edytuj produkt' : 'Dodaj produkt' }}</h3>
+    <h3>Dodaj produkt</h3>
     <label>
       Nazwa produktu
       <input
@@ -28,8 +30,9 @@
         placeholder="np. Shoes"
       />
     </label>
+    <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
     <div class="actions">
-      <button type="submit" [disabled]="productForm.invalid">Zapisz</button>
+      <button type="submit" [disabled]="productForm.invalid || isSubmitting">Zapisz</button>
       <button type="button" (click)="closeForm()">Anuluj</button>
     </div>
   </form>

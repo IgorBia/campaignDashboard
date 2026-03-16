@@ -31,3 +31,12 @@
   display: flex;
   gap: 8px;
 }
+
+.muted {
+  color: #666;
+}
+
+.error-text {
+  color: #b00020;
+  margin: 6px 0;
+}
