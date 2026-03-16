@@ -9,7 +9,7 @@ Aplikacja webowa do zarządzania produktami i kampaniami reklamowymi z budżetem
 
 ## Wymagania
 
-- Docker oraz Docker Compose (v2)
+- Docker oraz Docker Compose (v2).
 
 ## Uruchomienie
 
