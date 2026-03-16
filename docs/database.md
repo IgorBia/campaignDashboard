@@ -23,6 +23,8 @@ Globalne konto demo (jeden rekord).
 | id | UUID | PK | UUID konta |
 | balance | DECIMAL(19,2) | NOT NULL, CHECK (balance >= 0) | Aktualne saldo |
 | currency | VARCHAR(20) | NOT NULL | Np. `USD` |
+| created_at | TIMESTAMP | NOT NULL | Data utworzenia |
+| updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
 
 ## 2) product
 Produkty, dla których można tworzyć kampanie.
@@ -34,8 +36,6 @@ Produkty, dla których można tworzyć kampanie.
 | created_at | TIMESTAMP | NOT NULL | Data utworzenia |
 | updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
 | emerald_account_id | UUID | NOT NULL, FK -> emerald_account(id) | UUID wlasciciela produktu |
-
-
 
 ## 3) town
 Słownik miast do dropdown.
@@ -97,6 +97,6 @@ Tabela łącząca kampanie i słowa kluczowe (M:N).
 
 ## Dane startowe
 
-- `emerald_account`: 1 rekord (np. balance = 10000.00, currency = 'USD')
-- `town`: Warsaw, Krakow, Gdansk, Wroclaw, Poznan
-- `keyword`: socialmedia, drink, food, business, saas
+- `emerald_account`: 1 rekord (balance = 10000.00, currency = 'USD') — wstawiany przez `EmeraldAccountInitializer` przy starcie
+- `town` (10 rekordów): Warsaw, Krakow, Gdansk, Wroclaw, Poznan, Lodz, Szczecin, Bydgoszcz, Lublin, Katowice
+- `keyword` (25 rekordów): food, clothing, electronics, furniture, toys, books, sports, beauty, automotive, health, garden, pet supplies, office supplies, baby products, jewelry, music, movies, video games, home decor, tools, outdoors, travel, services, survival, other

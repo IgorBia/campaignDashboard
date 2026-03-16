@@ -1,28 +1,33 @@
 <section class="card">
   <div class="section-header">
-    <h2>Kampanie</h2>
-    <button type="button" (click)="openCreateForm()">Dodaj kampanię</button>
+    <h2>Campaigns</h2>
+    <button type="button" (click)="openCreateForm()">Add campaign</button>
   </div>
 
   <p class="error-text" *ngIf="loadError">{{ loadError }}</p>
+  <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
 
   <ul class="list" *ngIf="campaigns.length; else emptyState">
     <li *ngFor="let campaign of campaigns">
       <div class="campaign-item">
         <strong>{{ campaign.name }}</strong>
-        <small>{{ campaign.productName }} · {{ campaign.town.name }} · {{ campaign.campaignFund }}</small>
+        <small>{{ campaign.productName }} · {{ campaign.town.name }} · {{ campaign.campaignFund }} USD</small>
+      </div>
+      <div class="actions">
+        <button type="button" (click)="openEditForm(campaign)">Edit</button>
+        <button type="button" (click)="deleteCampaign(campaign.id)">Delete</button>
       </div>
     </li>
   </ul>
 
   <ng-template #emptyState>
-    <p class="muted">Brak kampanii</p>
+    <p class="muted">No campaigns</p>
   </ng-template>
 
   <form *ngIf="isFormOpen" class="inline-form" #campaignForm="ngForm" (ngSubmit)="submitForm()">
-    <h3>Dodaj kampanię</h3>
-    <label>
-      Produkt
+    <h3>{{ editingCampaignId ? 'Edit campaign' : 'Add campaign' }}</h3>
+    <label class="field-row">
+      <span>Product</span>
       <select
         name="productId"
         [(ngModel)]="formModel.productId"
@@ -31,8 +36,8 @@
         <option *ngFor="let product of products" [ngValue]="product.id">{{ product.name }}</option>
       </select>
     </label>
-    <label>
-      Nazwa kampanii
+    <label class="field-row">
+      <span>Campaign name</span>
       <input
         type="text"
         name="name"
@@ -40,18 +45,18 @@
         required
         minlength="1"
         maxlength="120"
-        placeholder="np. Summer Promo"
+        placeholder="e.g. Summer Promo"
       />
     </label>
 
-    <label>
-      Keywords (typeahead)
+    <label class="field-row">
+      <span>Keywords (typeahead)</span>
       <input
         type="text"
         name="keywordQuery"
         [(ngModel)]="keywordQuery"
         (ngModelChange)="onKeywordQueryChange()"
-        placeholder="Wpisz np. sport"
+        placeholder="Type e.g. sport"
       />
     </label>
 
@@ -68,8 +73,8 @@
       </span>
     </div>
 
-    <label>
-      Bid amount
+    <label class="field-row">
+      <span>Bid amount</span>
       <input
         type="number"
         name="bidAmount"
@@ -79,8 +84,8 @@
         step="0.01"
       />
     </label>
-    <label>
-      Campaign fund
+    <label class="field-row">
+      <span>Campaign fund</span>
       <input
         type="number"
         name="campaignFund"
@@ -91,16 +96,16 @@
       />
     </label>
 
-    <label>
-      Status
+    <label class="field-row">
+      <span>Status</span>
       <select name="status" [(ngModel)]="formModel.status" required>
         <option value="ON">ON</option>
         <option value="OFF">OFF</option>
       </select>
     </label>
 
-    <label>
-      Town
+    <label class="field-row">
+      <span>Town</span>
       <select
         name="townId"
         [(ngModel)]="formModel.townId"
@@ -110,8 +115,8 @@
       </select>
     </label>
 
-    <label>
-      Radius (km)
+    <label class="field-row">
+      <span>Radius (km)</span>
       <input
         type="number"
         name="radiusKm"
@@ -122,11 +127,9 @@
       />
     </label>
 
-    <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
-
     <div class="actions">
-      <button type="submit" [disabled]="campaignForm.invalid || !selectedKeywords.length || isSubmitting">Zapisz</button>
-      <button type="button" (click)="closeForm()">Anuluj</button>
+      <button type="submit" [disabled]="campaignForm.invalid || !selectedKeywords.length || isSubmitting">Save</button>
+      <button type="button" (click)="closeForm()">Cancel</button>
     </div>
   </form>
 </section>

@@ -3,8 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   CampaignCreateRequest,
+  CampaignDeleteResponse,
   CampaignMutationResponse,
-  CampaignResponse
+  CampaignResponse,
+  CampaignUpsertRequest
 } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -17,5 +19,13 @@ export class CampaignsApiService {
 
   create(request: CampaignCreateRequest): Observable<CampaignMutationResponse> {
     return this.http.post<CampaignMutationResponse>('/api/campaigns', request);
+  }
+
+  update(id: string, request: CampaignUpsertRequest): Observable<CampaignMutationResponse> {
+    return this.http.put<CampaignMutationResponse>(`/api/campaigns/${id}`, request);
+  }
+
+  delete(id: string): Observable<CampaignDeleteResponse> {
+    return this.http.delete<CampaignDeleteResponse>(`/api/campaigns/${id}`);
   }
 }

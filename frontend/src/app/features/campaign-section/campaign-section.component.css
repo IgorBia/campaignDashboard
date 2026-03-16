@@ -27,6 +27,19 @@
   padding-top: 12px;
 }
 
+.field-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.field-row input,
+.field-row select {
+  text-align: right;
+  width: 100%;
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -96,4 +109,15 @@
 .error-text {
   color: #b00020;
   margin: 6px 0;
+}
+
+@media (max-width: 640px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .field-row input,
+  .field-row select {
+    text-align: left;
+  }
 }

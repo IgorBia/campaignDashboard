@@ -14,4 +14,12 @@ export class ProductsApiService {
   create(request: ProductUpsertRequest): Observable<ProductResponse> {
     return this.http.post<ProductResponse>('/api/products', request);
   }
+
+  update(id: string, request: ProductUpsertRequest): Observable<ProductResponse> {
+    return this.http.put<ProductResponse>(`/api/products/${id}`, request);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/products/${id}`);
+  }
 }

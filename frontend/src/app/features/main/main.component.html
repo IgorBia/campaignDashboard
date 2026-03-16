@@ -5,8 +5,8 @@
   </header>
 
   <section class="card" *ngIf="account as acc; else accountErrorTpl">
-    <h2>Konto demo</h2>
-    <p><strong>Saldo:</strong> {{ acc.balance }} {{ acc.currency }}</p>
+    <h2>Demo Account</h2>
+    <p><strong>Balance:</strong> {{ acc.balance }} {{ acc.currency }}</p>
   </section>
 
   <ng-template #accountErrorTpl>

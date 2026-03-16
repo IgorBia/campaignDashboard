@@ -1,25 +1,30 @@
 <section class="card">
   <div class="section-header">
-    <h2>Produkty</h2>
-    <button type="button" (click)="openCreateForm()">Dodaj produkt</button>
+    <h2>Products</h2>
+    <button type="button" (click)="openCreateForm()">Add product</button>
   </div>
 
   <p class="error-text" *ngIf="loadError">{{ loadError }}</p>
+  <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
 
   <ul class="list" *ngIf="products.length; else emptyState">
     <li *ngFor="let product of products">
       <span>{{ product.name }}</span>
+      <div class="actions">
+        <button type="button" (click)="openEditForm(product)">Edit</button>
+        <button type="button" (click)="deleteProduct(product.id)">Delete</button>
+      </div>
     </li>
   </ul>
 
   <ng-template #emptyState>
-    <p class="muted">Brak produktów</p>
+    <p class="muted">No products</p>
   </ng-template>
 
   <form *ngIf="isFormOpen" class="inline-form" #productForm="ngForm" (ngSubmit)="submitForm()">
-    <h3>Dodaj produkt</h3>
-    <label>
-      Nazwa produktu
+    <h3>{{ editingProductId ? 'Edit product' : 'Add product' }}</h3>
+    <label class="field-row">
+      <span>Product name</span>
       <input
         type="text"
         name="name"
@@ -27,13 +32,12 @@
         required
         minlength="1"
         maxlength="100"
-        placeholder="np. Shoes"
+        placeholder="e.g. Shoes"
       />
     </label>
-    <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
     <div class="actions">
-      <button type="submit" [disabled]="productForm.invalid || isSubmitting">Zapisz</button>
-      <button type="button" (click)="closeForm()">Anuluj</button>
+      <button type="submit" [disabled]="productForm.invalid || isSubmitting">Save</button>
+      <button type="button" (click)="closeForm()">Cancel</button>
     </div>
   </form>
 </section>

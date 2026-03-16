@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CampaignRepository extends JpaRepository<Campaign, UUID> {
-
+	boolean existsByProductId(UUID productId);
 	List<Campaign> findAllByProductEmeraldAccountId(UUID emeraldAccountId);
 }
