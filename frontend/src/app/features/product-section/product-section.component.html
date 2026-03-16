@@ -1,0 +1,36 @@
+<section class="card">
+  <div class="section-header">
+    <h2>Produkty</h2>
+    <button type="button" (click)="openCreateForm()">Dodaj produkt</button>
+  </div>
+
+  <ul class="list">
+    <li>
+      <span>Przykładowy produkt</span>
+      <div class="actions">
+        <button type="button" (click)="openEditForm()">Edytuj</button>
+        <button type="button" (click)="deleteProduct()">Usuń</button>
+      </div>
+    </li>
+  </ul>
+
+  <form *ngIf="isFormOpen" class="inline-form" #productForm="ngForm" (ngSubmit)="submitForm()">
+    <h3>{{ isEditMode ? 'Edytuj produkt' : 'Dodaj produkt' }}</h3>
+    <label>
+      Nazwa produktu
+      <input
+        type="text"
+        name="name"
+        [(ngModel)]="formModel.name"
+        required
+        minlength="1"
+        maxlength="100"
+        placeholder="np. Shoes"
+      />
+    </label>
+    <div class="actions">
+      <button type="submit" [disabled]="productForm.invalid">Zapisz</button>
+      <button type="button" (click)="closeForm()">Anuluj</button>
+    </div>
+  </form>
+</section>
