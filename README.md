@@ -9,7 +9,7 @@ Minimalna aplikacja webowa do zarządzania produktami i kampaniami reklamowymi z
 
 ## Wymagania
 
-- [Docker](https://docs.docker.com/get-docker/) oraz [Docker Compose](https://docs.docker.com/compose/) (v2)
+- Docker oraz Docker Compose (v2)
 
 ## Uruchomienie
 
