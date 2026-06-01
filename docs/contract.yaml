@@ -3,7 +3,7 @@ info:
   title: Campaign Dashboard API
   version: 1.0.0
   description: |
-    API do zarządzania produktami i kampaniami reklamowymi dla globalnego konta demo.
+    API for managing products and advertising campaigns for a global demo account.
 servers:
   - url: http://localhost:8080
     description: Local
@@ -18,11 +18,11 @@ paths:
   /api/products:
     get:
       tags: [Products]
-      summary: Lista produktów
+      summary: List products
       operationId: listProducts
       responses:
         '200':
-          description: Lista produktów
+          description: List of products
           content:
             application/json:
               schema:
@@ -31,7 +31,7 @@ paths:
                   $ref: '#/components/schemas/ProductResponse'
     post:
       tags: [Products]
-      summary: Dodaj produkt
+      summary: Create product
       operationId: createProduct
       requestBody:
         required: true
@@ -41,7 +41,7 @@ paths:
               $ref: '#/components/schemas/ProductCreateRequest'
       responses:
         '201':
-          description: Utworzony produkt
+          description: Product created
           content:
             application/json:
               schema:
@@ -52,7 +52,7 @@ paths:
   /api/products/{id}:
     put:
       tags: [Products]
-      summary: Edytuj produkt
+      summary: Update product
       operationId: updateProduct
       parameters:
         - $ref: '#/components/parameters/ProductId'
@@ -64,7 +64,7 @@ paths:
               $ref: '#/components/schemas/ProductUpdateRequest'
       responses:
         '200':
-          description: Zaktualizowany produkt
+          description: Product updated
           content:
             application/json:
               schema:
@@ -75,24 +75,24 @@ paths:
           $ref: '#/components/responses/NotFound'
     delete:
       tags: [Products]
-      summary: Usuń produkt
+      summary: Delete product
       operationId: deleteProduct
       parameters:
         - $ref: '#/components/parameters/ProductId'
       responses:
         '204':
-          description: Produkt usunięty
+          description: Product deleted
         '404':
           $ref: '#/components/responses/NotFound'
 
   /api/campaigns:
     get:
       tags: [Campaigns]
-      summary: Lista kampanii globalnego użytkownika demo
+      summary: List campaigns for the global demo user
       operationId: listCampaigns
       responses:
         '200':
-          description: Lista kampanii
+          description: List of campaigns
           content:
             application/json:
               schema:
@@ -101,7 +101,7 @@ paths:
                   $ref: '#/components/schemas/CampaignResponse'
     post:
       tags: [Campaigns]
-      summary: Dodaj kampanię
+      summary: Create campaign
       operationId: createCampaign
       requestBody:
         required: true
@@ -111,7 +111,7 @@ paths:
               $ref: '#/components/schemas/CampaignCreateRequest'
       responses:
         '201':
-          description: Utworzona kampania i nowe saldo konta
+          description: Campaign created and new account balance
           content:
             application/json:
               schema:
@@ -126,13 +126,13 @@ paths:
   /api/campaigns/{id}:
     get:
       tags: [Campaigns]
-      summary: Pobierz kampanię
+      summary: Get campaign
       operationId: getCampaign
       parameters:
         - $ref: '#/components/parameters/CampaignId'
       responses:
         '200':
-          description: Szczegóły kampanii
+          description: Campaign details
           content:
             application/json:
               schema:
@@ -141,7 +141,7 @@ paths:
           $ref: '#/components/responses/NotFound'
     put:
       tags: [Campaigns]
-      summary: Edytuj kampanię
+      summary: Update campaign
       operationId: updateCampaign
       parameters:
         - $ref: '#/components/parameters/CampaignId'
@@ -153,7 +153,7 @@ paths:
               $ref: '#/components/schemas/CampaignUpdateRequest'
       responses:
         '200':
-          description: Zaktualizowana kampania i nowe saldo konta
+          description: Campaign updated and new account balance
           content:
             application/json:
               schema:
@@ -166,14 +166,14 @@ paths:
           $ref: '#/components/responses/BusinessConflict'
     delete:
       tags: [Campaigns]
-      summary: Usuń kampanię
-      description: Usuń kampanię i zwróć jej fund do salda konta demo.
+      summary: Delete campaign
+      description: Delete campaign and return its fund to the demo account balance.
       operationId: deleteCampaign
       parameters:
         - $ref: '#/components/parameters/CampaignId'
       responses:
         '200':
-          description: Kampania usunięta i zaktualizowane saldo
+          description: Campaign deleted and account balance updated
           content:
             application/json:
               schema:
@@ -184,7 +184,7 @@ paths:
   /api/dictionaries/keywords:
     get:
       tags: [Dictionaries]
-      summary: Typeahead słów kluczowych
+      summary: Keyword typeahead
       operationId: searchKeywords
       parameters:
         - name: query
@@ -195,7 +195,7 @@ paths:
             minLength: 1
       responses:
         '200':
-          description: Lista dopasowań
+          description: List of matches
           content:
             application/json:
               schema:
@@ -206,11 +206,11 @@ paths:
   /api/dictionaries/towns:
     get:
       tags: [Dictionaries]
-      summary: Lista miast do dropdown
+      summary: List of towns for dropdown
       operationId: listTowns
       responses:
         '200':
-          description: Lista miast
+          description: List of towns
           content:
             application/json:
               schema:
@@ -221,11 +221,11 @@ paths:
   /api/account:
     get:
       tags: [Account]
-      summary: Saldo konta Emerald (globalne demo)
+      summary: Emerald account balance (global demo)
       operationId: getAccount
       responses:
         '200':
-          description: Dane konta
+          description: Account data
           content:
             application/json:
               schema:
@@ -234,7 +234,7 @@ paths:
   /api/account/seed:
     post:
       tags: [Account]
-      summary: Reset salda konta demo (endpoint techniczny)
+      summary: Reset demo account balance (technical endpoint)
       operationId: seedAccount
       requestBody:
         required: false
@@ -244,7 +244,7 @@ paths:
               $ref: '#/components/schemas/AccountSeedRequest'
       responses:
         '200':
-          description: Zresetowane konto
+          description: Account reset
           content:
             application/json:
               schema:
@@ -269,19 +269,19 @@ components:
 
   responses:
     BadRequest:
-      description: Błąd walidacji danych
+      description: Data validation error
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
     NotFound:
-      description: Zasób nie istnieje
+      description: Resource does not exist
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
     BusinessConflict:
-      description: Błąd reguły biznesowej (np. niewystarczające środki)
+      description: Business rule error (e.g., insufficient funds)
       content:
         application/json:
           schema:

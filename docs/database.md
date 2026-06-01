@@ -1,102 +1,102 @@
-# Model bazy danych (H2 in-memory)
+# Database model (H2 in-memory)
 
-Ten dokument opisuje docelowy model danych dla aplikacji Campaign Dashboard zgodny z ustaleniami:
+This document describes the target data model for the Campaign Dashboard application based on the following assumptions:
 
-1. Jedno globalne konto demo (bez logowania),
-2. CRUD produktow oraz kampanii od nich nalezacych.
+1. One global demo account (no login),
+2. CRUD of products and their campaigns.
 
-## Założenia
+## Assumptions
 
-- Silnik: H2 uruchamiany in memory.
-- Relacja produktu do kampanii: **1:N** (jeden produkt może mieć wiele kampanii).
-- Kampania ma słownikowe miasto i listę słów kluczowych.
-- `campaign_fund` jest rezerwowany z konta Emerald przy tworzeniu/edycji kampanii.
-- Przy usunięciu kampanii fund wraca na konto demo.
+- Engine: H2 running in memory.
+- Product-to-campaign relationship: **1:N** (one product can have many campaigns).
+- A campaign has a dictionary town and a list of keywords.
+- `campaign_fund` is reserved from the Emerald account when creating/updating a campaign.
+- When deleting a campaign, the fund returns to the demo account.
 
-## Encje i tabele
+## Entities and tables
 
 ## 1) emerald_account
-Globalne konto demo (jeden rekord).
+Global demo account (single record).
 
-| Kolumna | Typ | Ograniczenia | Opis |
+| Column | Type | Constraints | Description |
 |---|---|---|---|
-| id | UUID | PK | UUID konta |
-| balance | DECIMAL(19,2) | NOT NULL, CHECK (balance >= 0) | Aktualne saldo |
-| currency | VARCHAR(20) | NOT NULL | Np. `USD` |
-| created_at | TIMESTAMP | NOT NULL | Data utworzenia |
-| updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
+| id | UUID | PK | Account UUID |
+| balance | DECIMAL(19,2) | NOT NULL, CHECK (balance >= 0) | Current balance |
+| currency | VARCHAR(20) | NOT NULL | e.g. `USD` |
+| created_at | TIMESTAMP | NOT NULL | Creation date |
+| updated_at | TIMESTAMP | NOT NULL | Update date |
 
 ## 2) product
-Produkty, dla których można tworzyć kampanie.
+Products for which campaigns can be created.
 
-| Kolumna | Typ | Ograniczenia | Opis |
+| Column | Type | Constraints | Description |
 |---|---|---|---|
-| id | UUID | PK | UUID produktu |
-| name | VARCHAR(100) | NOT NULL | Nazwa produktu |
-| created_at | TIMESTAMP | NOT NULL | Data utworzenia |
-| updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
-| emerald_account_id | UUID | NOT NULL, FK -> emerald_account(id) | UUID wlasciciela produktu |
+| id | UUID | PK | Product UUID |
+| name | VARCHAR(100) | NOT NULL | Product name |
+| created_at | TIMESTAMP | NOT NULL | Creation date |
+| updated_at | TIMESTAMP | NOT NULL | Update date |
+| emerald_account_id | UUID | NOT NULL, FK -> emerald_account(id) | Product owner UUID |
 
 ## 3) town
-Słownik miast do dropdown.
+City dictionary for dropdown.
 
-| Kolumna | Typ | Ograniczenia | Opis |
+| Column | Type | Constraints | Description |
 |---|---|---|---|
-| id | UUID | PK | UUID miasta |
-| name | VARCHAR(120) | NOT NULL, UNIQUE | Nazwa miasta |
+| id | UUID | PK | Town UUID |
+| name | VARCHAR(120) | NOT NULL, UNIQUE | Town name |
 
 ## 4) keyword
-Słownik słów kluczowych do typeahead.
+Keyword dictionary for typeahead.
 
-| Kolumna | Typ | Ograniczenia | Opis |
+| Column | Type | Constraints | Description |
 |---|---|---|---|
-| id | UUID | PK | UUID słowa kluczowego |
-| keyword_value | VARCHAR(120) | NOT NULL, UNIQUE | Treść słowa kluczowego |
+| id | UUID | PK | Keyword UUID |
+| keyword_value | VARCHAR(120) | NOT NULL, UNIQUE | Keyword value |
 
 ## 5) campaign
-Kampania reklamowa przypisana do produktu.
+Advertising campaign assigned to a product.
 
-| Kolumna | Typ | Ograniczenia | Opis |
+| Column | Type | Constraints | Description |
 |---|---|---|---|
-| id | UUID | PK | UUID kampanii |
-| product_id | UUID | NOT NULL, FK -> product(id) | Produkt kampanii |
-| name | VARCHAR(120) | NOT NULL | Nazwa kampanii |
-| bid_amount | DECIMAL(19,2) | NOT NULL, CHECK (bid_amount >= 0.01) | Stawka bid |
-| campaign_fund | DECIMAL(19,2) | NOT NULL, CHECK (campaign_fund > 0) | Budżet kampanii |
-| status | VARCHAR(10) | NOT NULL, CHECK (status IN ('ON','OFF')) | Status kampanii |
-| town_id | UUID | NOT NULL, FK -> town(id) | Miasto |
-| radius_km | INT | NOT NULL, CHECK (radius_km > 0) | Promień w km |
-| created_at | TIMESTAMP | NOT NULL | Data utworzenia |
-| updated_at | TIMESTAMP | NOT NULL | Data modyfikacji |
+| id | UUID | PK | Campaign UUID |
+| product_id | UUID | NOT NULL, FK -> product(id) | Campaign product |
+| name | VARCHAR(120) | NOT NULL | Campaign name |
+| bid_amount | DECIMAL(19,2) | NOT NULL, CHECK (bid_amount >= 0.01) | Bid amount |
+| campaign_fund | DECIMAL(19,2) | NOT NULL, CHECK (campaign_fund > 0) | Campaign budget |
+| status | VARCHAR(10) | NOT NULL, CHECK (status IN ('ON','OFF')) | Campaign status |
+| town_id | UUID | NOT NULL, FK -> town(id) | Town |
+| radius_km | INT | NOT NULL, CHECK (radius_km > 0) | Radius in km |
+| created_at | TIMESTAMP | NOT NULL | Creation date |
+| updated_at | TIMESTAMP | NOT NULL | Update date |
 
 ## 6) campaign_keyword
-Tabela łącząca kampanie i słowa kluczowe (M:N).
+Join table for campaigns and keywords (M:N).
 
-| Kolumna | Typ | Ograniczenia | Opis |
+| Column | Type | Constraints | Description |
 |---|---|---|---|
-| campaign_id | UUID | PK, FK -> campaign(id) | Kampania |
-| keyword_id | UUID | PK, FK -> keyword(id) | Słowo kluczowe |
+| campaign_id | UUID | PK, FK -> campaign(id) | Campaign |
+| keyword_id | UUID | PK, FK -> keyword(id) | Keyword |
 
-## Relacje
+## Relationships
 
 - `emerald_account (1) -> (N) product`
 - `product (1) -> (N) campaign`
 - `town (1) -> (N) campaign`
 - `campaign (N) -> (N) keyword` 
 
-## Inne reguly biznesowe
+## Other business rules
 
-1. Kampania musi mieć co najmniej 1 keyword.
-2. Przy `POST /campaigns`:
-   - jeśli `campaign_fund` > saldo konta, zwracamy błąd (HTTP 409).
-   - w przeciwnym razie odejmujemy fund od konta.
-3. Przy `PUT /campaigns/{id}`:
-   - liczymy różnicę fund (`newFund - oldFund`) i aktualizujemy saldo.
-4. Przy `DELETE /campaigns/{id}`:
-   - fund usuwanej kampanii wraca na konto.
+1. A campaign must have at least 1 keyword.
+2. On `POST /campaigns`:
+   - if `campaign_fund` > account balance, return an error (HTTP 409).
+   - otherwise, subtract the fund from the account.
+3. On `PUT /campaigns/{id}`:
+   - compute the fund difference (`newFund - oldFund`) and update the balance.
+4. On `DELETE /campaigns/{id}`:
+   - the fund of the deleted campaign returns to the account.
 
-## Dane startowe
+## Seed data
 
-- `emerald_account`: 1 rekord (balance = 10000.00, currency = 'USD') — wstawiany przez `EmeraldAccountInitializer` przy starcie
-- `town` (10 rekordów): Warsaw, Krakow, Gdansk, Wroclaw, Poznan, Lodz, Szczecin, Bydgoszcz, Lublin, Katowice
-- `keyword` (25 rekordów): food, clothing, electronics, furniture, toys, books, sports, beauty, automotive, health, garden, pet supplies, office supplies, baby products, jewelry, music, movies, video games, home decor, tools, outdoors, travel, services, survival, other
+- `emerald_account`: 1 record (balance = 10000.00, currency = 'USD') — inserted by `EmeraldAccountInitializer` at startup
+- `town` (10 records): Warsaw, Krakow, Gdansk, Wroclaw, Poznan, Lodz, Szczecin, Bydgoszcz, Lublin, Katowice
+- `keyword` (25 records): food, clothing, electronics, furniture, toys, books, sports, beauty, automotive, health, garden, pet supplies, office supplies, baby products, jewelry, music, movies, video games, home decor, tools, outdoors, travel, services, survival, other
